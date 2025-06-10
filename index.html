@@ -8,16 +8,187 @@
       margin: 0;
       padding: 0;
       background: #000;
+      font-family: 'Arial', sans-serif;
     }
+
     img {
       display: block;
       width: 100%;
       height: auto;
     }
+
+    /* MENU BUTTON + LABEL */
+    #menu-button-wrapper {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      align-items: center;
+      z-index: 1001;
+    }
+
+    #menu-button {
+      width: 50px;
+      height: 50px;
+      background: navy;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    #menu-button span {
+      display: block;
+      width: 24px;
+      height: 3px;
+      background: white;
+      border-radius: 2px;
+    }
+
+    #menu-label {
+      color: #0ff;
+      font-weight: bold;
+      font-size: 20px;
+      margin-left: 10px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #menu-label.show {
+      opacity: 1;
+    }
+
+    /* SIDEBAR */
+    #menu {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 250px;
+      height: 100%;
+      background: #0ff;
+      box-shadow: 5px 0 15px rgba(0, 255, 255, 0.4);
+      padding: 20px;
+      transition: left 0.3s ease;
+      z-index: 1000;
+    }
+
+    #menu.show {
+      left: 0;
+    }
+
+    #menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      color: black;
+    }
+
+    #menu ul li {
+      margin: 20px 0;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .submenu {
+      margin-top: 10px;
+      margin-left: 15px;
+      font-weight: normal;
+      font-size: 14px;
+    }
+
+    .submenu li {
+      margin: 8px 0;
+      padding-left: 20px;
+      font-weight: normal;
+    }
+
+    #menu ul li a {
+      color: #000;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    #menu ul li a:hover {
+      color: #ff00ff; /* neon pink */
+    }
+
+    .divider {
+      height: 2px;
+      background-color: #008b8b;
+      margin: 20px 0 10px 0;
+      border-radius: 2px;
+    }
   </style>
 </head>
 <body>
+  <!-- Sidebar Menu -->
+  <div id="menu">
+    <ul><br><br>
+      <li style="border: none; font-size: 22px;">MENU</li>
+      <li>
+        <span style="font-weight: bold;">1. Neon Signs</span>
+        <ul class="submenu">
+          <li><a href="CustomSign.html">a. Custom Made Neon Signs</a></li>
+          <li><a href="#">b. Rentals</a></li>
+        </ul>
+        <div class="divider"></div>
+      </li>
+      <li>
+        <span style="font-weight: bold;">2. </span><a href="#">HELP</a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Menu Button + Label -->
+  <div id="menu-button-wrapper">
+    <div id="menu-button" onclick="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div id="menu-label">MENU</div>
+  </div>
+
+  <!-- Image -->
   <div id="container"></div>
-  <script src="script.js"></script>
+
+  <!-- Script -->
+  <script>
+    // Load image
+    const img = document.createElement('img');
+    img.src = 'Brochure.png'; // Ensure case matches the actual filename
+    img.alt = 'Brochure';
+    img.style.width = '100%';
+    img.style.display = 'block';
+    document.getElementById('container').appendChild(img);
+
+    // Toggle menu + label
+    function toggleMenu() {
+      const menu = document.getElementById('menu');
+      const label = document.getElementById('menu-label');
+      menu.classList.toggle('show');
+      label.classList.toggle('show');
+    }
+
+    // Close sidebar if clicked outside
+    document.addEventListener('click', function (event) {
+      const menu = document.getElementById('menu');
+      const button = document.getElementById('menu-button');
+      const label = document.getElementById('menu-label');
+
+      if (
+        menu.classList.contains('show') &&
+        !menu.contains(event.target) &&
+        !button.contains(event.target) &&
+        !label.contains(event.target)
+      ) {
+        menu.classList.remove('show');
+        label.classList.remove('show');
+      }
+    });
+  </script>
 </body>
 </html>
