@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Custom Neon Sign</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Orbitron&family=Playfair+Display&family=Great+Vibes&family=Courier+Prime&family=Rock+Salt&family=Monoton&family=Bebas+Neue&family=Fredoka+One&family=Rubik+Moonrocks&family=Shadows+Into+Light&family=Raleway&family=Dancing+Script&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      margin: 0;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    #signText {
+      display: block;
+      margin: 0 auto 2rem auto;
+      padding: 0.5rem;
+      font-size: 18px;
+      width: 60%;
+    }
+    .container {
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .left-panel, .right-panel {
+      flex: 1 1 45%;
+    }
+    .font-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .font-option {
+      padding: 0.6rem;
+      background-color: #111;
+      border: 2px solid #444;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+    .font-option:hover, .font-option.active {
+      border-color: #ff00ff;
+      background-color: #222;
+    }
+    canvas {
+      border: 2px solid #444;
+      width: 100%;
+      max-width: 100%;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    select {
+      width: 200px;
+      height: 35px;
+      font-size: 16px;
+      margin-bottom: 1rem;
+    }
+    .plan-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+    }
+    .plan-button {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 16px;
+      background-color: #222;
+      color: white;
+      border: 2px solid #444;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .plan-button.active {
+      border-color: #ff00ff;
+      background-color: #444;
+    }
+    button {
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 16px;
+      background-color: #ff00ff;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    @media screen and (max-width: 800px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Create Your Custom Neon Sign</h1>
+  <input type="text" id="signText" placeholder="Type your neon text..." value="My Neon Sign">
+  <div class="container">
+    <div class="left-panel">
+      <h2 style="margin: 0; padding-bottom: 0.2rem; line-height: 1;">1. Choose Plan:</h2>
+      <div class="plan-buttons">
+        <button class="plan-button active" data-tier="premium">Premium</button>
+        <button class="plan-button" data-tier="ultimate">Ultimate</button>
+      </div>
+
+      <h2>2. Choose your font</h2>
+      <div class="font-grid" id="fontSelector">
+        <div class="font-option premium ultimate" data-font="Pacifico" style="font-family: 'Pacifico';">Pacifico</div>
+        <div class="font-option premium ultimate" data-font="Great Vibes" style="font-family: 'Great Vibes';">Great Vibes</div>
+        <div class="font-option premium ultimate" data-font="Playfair Display" style="font-family: 'Playfair Display';">Playfair</div>
+        <div class="font-option premium ultimate" data-font="Orbitron" style="font-family: 'Orbitron';">Orbitron</div>
+        <div class="font-option premium ultimate" data-font="Rock Salt" style="font-family: 'Rock Salt';">Rock Salt</div>
+        <div class="font-option premium ultimate" data-font="Bebas Neue" style="font-family: 'Bebas Neue';">Bebas Neue</div>
+        <div class="font-option premium ultimate" data-font="Fredoka One" style="font-family: 'Fredoka One';">Fredoka</div>
+        <div class="font-option premium ultimate" data-font="Rubik Moonrocks" style="font-family: 'Rubik Moonrocks';">Rubik Moonrocks</div>
+        <div class="font-option premium ultimate" data-font="Shadows Into Light" style="font-family: 'Shadows Into Light';">Shadows Light</div>
+        <div class="font-option premium ultimate" data-font="Raleway" style="font-family: 'Raleway';">Raleway</div>
+        <div class="font-option premium ultimate" data-font="Dancing Script" style="font-family: 'Dancing Script';">Dancing Script</div>
+      </div>
+
+      <label for="fontSize">3. Select Size</label>
+      <select id="fontSize">
+        <option value="40">Small</option>
+        <option value="60" selected>Medium</option> 
+        <option value="80">Large</option>
+      </select>
+
+      <label for="fontColorSelect">4. Choose Text Color</label>
+      <select id="fontColorSelect"></select>
+
+      <label for="bgColor">5. Choose Background Color</label>
+      <input type="color" id="bgColor" value="#000000">
+    </div>
+    <div class="right-panel">
+      <canvas id="previewCanvas" width="600" height="200"></canvas><br>
+      <button onclick="downloadImage()">Download Image</button>
+    </div>
+  </div>
+
+  <script>
+    const planButtons = document.querySelectorAll('.plan-button');
+    const fontColorSelect = document.getElementById('fontColorSelect');
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    let selectedFont = 'Pacifico';
+    let selectedPlan = 'premium';
+
+    const colorOptions = {
+      premium: [
+        { name: "Pink 💗", value: "#ff69b4" },
+        { name: "Dark Blue 🔵", value: "#00008b" },
+        { name: "Purple 💜", value: "#800080" },
+        { name: "Icy Blue 🌀", value: "#00ffff" },
+        { name: "Green 🟢", value: "#00ff00" },
+        { name: "Orange 🟠", value: "#ffa500" },
+        { name: "Red🔴", value: "#ff0000" }
+      ],
+      ultimate: [
+        { name: "White ⚪", value: "#ffffff" },
+        { name: "Warm White", value: "#f5f5dc" },
+        { name: "Pink 🩷", value: "#ff69b4" },
+        { name: "Dark Blue 🔵", value: "#00008b" },
+        { name: "Purple 💜", value: "#800080" },
+        { name: "Icy Blue 🌀", value: "#00ffff" },
+        { name: "Green 🟢", value: "#00ff00" },
+        { name: "Orange 🟠", value: "#ffa500" },
+        { name: "Yellow 🟡", value: "#ffff00" },
+        { name: "Red🔴", value: "#ff0000" }
+      ]
+    };
+
+    function updateColorOptions(tier) {
+      fontColorSelect.innerHTML = '';
+      colorOptions[tier].forEach(opt => {
+        const option = document.createElement('option');
+        option.textContent = opt.name;
+        option.value = opt.value;
+        fontColorSelect.appendChild(option);
+      });
+      fontColorSelect.value = colorOptions[tier][0].value;
+      updateCanvas();
+    }
+
+    function updateFonts(tier) {
+      document.querySelectorAll('.font-option').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.font-option.premium').forEach(el => el.style.display = 'inline-block');
+      if (tier === 'ultimate') {
+        document.querySelectorAll('.font-option.ultimate').forEach(el => el.style.display = 'inline-block');
+      }
+    }
+
+    planButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        planButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedPlan = btn.getAttribute('data-tier');
+        updateFonts(selectedPlan);
+        updateColorOptions(selectedPlan);
+      });
+    });
+
+    function updateCanvas() {
+      const text = document.getElementById('signText').value;
+      const fontSize = document.getElementById('fontSize').value;
+      const fontColor = fontColorSelect.value;
+      const bgColor = document.getElementById('bgColor').value;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.shadowColor = fontColor;
+      ctx.font = `${fontSize}px "${selectedFont}"`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      ctx.shadowBlur = 60; ctx.globalAlpha = 0.3; ctx.fillStyle = fontColor; ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+      ctx.shadowBlur = 30; ctx.globalAlpha = 0.5; ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+      ctx.shadowBlur = 10; ctx.globalAlpha = 0.7; ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+      ctx.shadowBlur = 0; ctx.globalAlpha = 1.0; ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    }
+
+    function downloadImage() {
+      const link = document.createElement('a');
+      link.download = 'custom-sign.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    document.getElementById('signText').addEventListener('input', updateCanvas);
+    document.getElementById('bgColor').addEventListener('input', updateCanvas);
+    document.getElementById('fontSize').addEventListener('change', updateCanvas);
+    fontColorSelect.addEventListener('change', updateCanvas);
+
+    document.querySelectorAll('.font-option').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('.font-option').forEach(el => el.classList.remove('active'));
+        option.classList.add('active');
+        selectedFont = option.getAttribute('data-font');
+        updateCanvas();
+      });
+    });
+
+    document.querySelector('.font-option').classList.add('active');
+    updateFonts('premium');
+    updateColorOptions('premium');
+  </script>
+</body>
+</html>
